@@ -1,0 +1,66 @@
+Array
+(
+    [xitemcode] => ITM000084
+    [xlessonno] => 1178
+    [xbatch] => 6
+    [xset] => set-A
+    [xstartdate] => 11/14/2021
+    [xstarttime] => 09:00
+    [xendtime] => 10:00
+    [zutime] => 17:09:52
+    [bizid] => 100
+    [zemail] => 145
+)
+
+'100','6','10:00','ITM000084','1178','set-A','11/14/2021','09:00','145','17:09:52',
+Array
+(
+    [0] => 42S22
+    [1] => 1054
+    [2] => Unknown column 'xstartdate' in 'field list'
+)
+
+Array
+(
+    [xitemcode] => ITM000084
+    [xlessonno] => 1178
+    [xbatch] => 6
+    [xset] => set-A
+    [xdate] => 11/14/2021
+    [xstarttime] => 09:00
+    [xendtime] => 10:00
+    [zutime] => 17:10:40
+    [bizid] => 100
+    [zemail] => 145
+)
+
+'100','6','11/14/2021','10:00','ITM000084','1178','set-A','09:00','145','17:10:40',
+Array
+(
+    [xitemcode] => ITM000084
+    [xlessonno] => 1178
+    [xbatch] => 6
+    [xset] => set-A
+    [xstarttime] => 09:00
+    [xendtime] => 10:00
+    [xdate] => 2021-11-14
+    [zutime] => 17:15:56
+    [bizid] => 100
+    [zemail] => 145
+)
+
+'100','6','2021-11-14','10:00','ITM000084','1178','set-A','09:00','145','17:15:56',
+Array
+(
+    [xitemcode] => ITM000084
+    [xlessonno] => 1178
+    [xbatch] => 6
+    [xset] => set-A
+    [xstarttime] => 09:00
+    [xendtime] => 10:00
+    [xdate] => 2021-11-14
+    [bizid] => 100
+    [zemail] => 145
+)
+
+'100','6','2021-11-14','10:00','ITM000084','1178','set-A','09:00','145',
