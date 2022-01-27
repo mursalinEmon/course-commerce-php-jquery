@@ -131,6 +131,74 @@ class Stuexamquestion extends Controller{
 			}
 
 	}
+
+	function submitanswers(){
+		$xanswers = $_POST["submittedAns"];
+		$xresult = $_POST["correctResult"];
+
+		$answers  = json_encode($xanswers);
+		$result  = json_encode($xresult);
+		// $answers  = implode(", ", $xanswers);
+		// $result  = implode(", ", $xresult);
+		// Logdebug::appendlog(gettype($answers));
+		// Logdebug::appendlog(print_r($answers,true));
+
+		$course = Session::get('courseCode');
+		$lesson = Session::get('lessonCode');
+		$user = Session::get('suser');
+
+		$xbatch = $this->model->getstubatch($course);
+		$batch = $xbatch[0]["xbatch"];
+		// Logdebug::appendlog(print_r($batch,true));
+		$exammst = $this->model->getstuexammstsl($course,$lesson);
+		$exammstsl = $exammst[0]["xexammstsl"];
+
+		$confirmSub = $this->model->confirmSubmission($course,$lesson,$user,$batch,$exammstsl);
+		// Logdebug::appendlog(print_r($confirmSub,true));
+		if(!empty($confirmSub)){
+			echo json_encode(array('message'=>'Answers Submitted Already!','result'=>'success','keycode'=>$answers));
+
+		}else{
+			$examdet = $this->model->getstuexamdetsl($course,$lesson,$exammstsl);
+		
+			$xexamdetsl = [];
+			foreach($examdet as $item){
+				array_push($xexamdetsl,$item["xexamdetsl"]);
+				// Logdebug::appendlog(print_r($examdetsl,true));
+			}
+	
+			// $examdetsl  = implode(", ", $examdetsl);
+		$examdetsl  = json_encode($xexamdetsl);
+
+	
+			$t=time();
+			$subdate = date("Y-m-d",$t);
+			$subtime = date("h:i:s",$t);
+	
+			
+			$cols = "insert into eduexamresult(bizid,xitemcode,xlessonno,xbatch,xstudent,xexamdetsl,xexammstsl,xstuans,xresult,xsubtime,xsubdate) values";
+			$vals = "";
+						// Logdebug::appendlog(print_r($itemdt, true));
+							
+				$vals .= "('".BIZID."','".$course."','".$lesson."','".$batch."','".$user."','".$examdetsl."','".$exammstsl."','".$answers."','".$result."','".$subtime."','".$subdate."'),";
+	
+				$vals = rtrim($vals,",");
+				$result = $this->model->createtemp($cols.$vals);
+				// Logdebug::appendlog(print_r($result,true));
+	
+				if($result>0){
+	
+					echo json_encode(array('message'=>'Answers Submitted.','result'=>'success','keycode'=>$answers));
+					
+				}else{
+					echo json_encode(array('message'=>'Answers Not Submitted.','result'=>'error','keycode'=>''));
+				}
+		}
+		
+		
+
+
+	}
 	
 	
 
@@ -180,12 +248,7 @@ class Stuexamquestion extends Controller{
 				// console.log('test');
 				var submittedAns = [];
 
-				//  console.log($(\"input[type='radio']:checked\"));
-				 $($(\"input[type='radio']:checked\")).each((e,f)=>{
-					// console.log(e,f.value);
-					submittedAns.push(f.value);
-
-				 });
+				
 
 
 				$.ajax({
@@ -203,55 +266,91 @@ class Stuexamquestion extends Controller{
 						const resultobj = JSON.parse(result);
 
 						if(resultobj['result']=='success'){
-							var correctResult = [];
-							var totalNumber = 0;
-							var correctNumber = 0;
 							var answers = resultobj['keycode'];
-							for (var i=0; i<answers.length; i++){
-								correctResult.push(answers[i] - submittedAns[i]);
-								if(correctResult[i]=='0'){
-									correctResult[i]=1;
-									correctNumber += 1;
-
-								}else{
-									correctResult[i]=0;
-								}
-								totalNumber +=1; 
-							}
-
-							// console.log(answers);
 							
-							// console.log(submittedAns);
-							// console.log(correctResult);
-							// console.log(totalNumber);
-							// console.log(correctNumber);
-
-							$(\"#showResult\").append(`
-								<h3>You Got: `+correctNumber+`/`+totalNumber+` number.</h3>
-							`);
 							var idVal = [];
 
 							$($(\"input[type='radio']:checked\")).each((e,f)=>{
-								console.log(answers[e]+[e]);
+								console.log(f);
 								$(\"label[for='\"+idVal[e]+\"']\").removeClass(\"red\");
 
-								// console.log($(\"input[type='radio']:checked\"));
+
+								console.log($(\"input[type='radio']:checked\"));
 								submittedAns.push(f.value);
+								console.log(submittedAns);
 								
 								idVal.push($(f).attr(\"id\"));
 								console.log(idVal);
 
+								
+
 								if(answers[e] == f.value){
-									console.log('correct');
+									// console.log('correct');
 									$(\"label[for='\"+idVal[e]+\"']\").css({\"color\":\"green\"});
 								}else{
-								console.log($(\"label[for='answers[e]+[e]']\"));
+								// console.log($(\"label[for='answers[e]+[e]']\"));
 								$(\"label[for='\"+answers[e]+[e]+\"']\").css({\"color\":\"green\"});
 								$(\"label[for='\"+idVal[e]+\"']\").css({\"color\":\"red\"});
 								}
 			
 							 });
+
+							 var correctResult = [];
+							 var totalNumber = 0;
+							 var correctNumber = 0;
+							 for (var i=0; i<answers.length; i++){
+								 correctResult.push(answers[i] - submittedAns[i]);
+								 if(correctResult[i]=='0'){
+									 correctResult[i]=1;
+									 correctNumber += 1;
+ 
+								 }else{
+									 correctResult[i]=0;
+								 }
+								 totalNumber +=1; 
+							 }
+ 
+							 // console.log(answers);
+							 
+							 // console.log(submittedAns);
+							 // console.log(correctResult);
+							 // console.log(totalNumber);
+							 // console.log(correctNumber);
+ 
+							 $(\"#showResult\").append(`
+								 <h3>You Got: `+correctNumber+`/`+totalNumber+` number.</h3>
+							 `);
+							// console.log(submittedAnswers);
 							
+
+							 var url = '".URL."stuexamquestion/submitanswers';
+					
+							 $.ajax({
+								 url:url, 
+								 type : 'POST',	
+								 dataType : 'json',					
+								 data : {submittedAns:submittedAns,correctResult:correctResult,}, 
+								 
+								 success : function(result) {
+									 
+									 console.log(result);
+		 
+									 if(result.result=='success'){
+										 $('#submitButton').hide();
+										 
+									 }else{
+										 
+										 
+										 
+									 }
+										
+									 
+											 
+								 },
+								 error: function(xhr, resp, text) {
+									 console.log(xhr, resp, text);
+								 }
+							 });
 
 						}
 						

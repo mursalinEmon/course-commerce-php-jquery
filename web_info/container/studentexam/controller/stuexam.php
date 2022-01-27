@@ -58,9 +58,16 @@ class Stuexam extends Controller{
 		$course = $_POST["courseValue"];
 		$lesson = $_POST["lessonValue"];
 		$exams = $this->model->getexams($course,$lesson);
+		$exams = $exams[0];
 		// Logdebug::appendlog(print_r($exams,true));
-		
-		if($exams){
+
+		$result = $this->model->getresult($exams);
+		$result = $result[0];
+		Logdebug::appendlog(print_r($result,true));
+		if($result && $exams){
+			echo json_encode(array('message'=>'Result Found','result'=>'success','keycode'=>$result));
+		}
+		else if($exams){
 			
 			echo json_encode(array('message'=>'Exams Found','result'=>'success','keycode'=>$exams));
 			
@@ -190,8 +197,22 @@ class Stuexam extends Controller{
 							if(result.result=='success'){
 								// console.log(result.keycode);
 								// console.log(result.keycode[0].xstarttime);
-								var availableExam = result.keycode[0];
+								var res = result.keycode;
 
+								if(res.xresult){
+									var result = res.xresult;
+									console.log(parseInt(result));
+									var score = '';
+									for(var i = 0; i<result.length; i++){
+									console.log(result[i]);
+										score+=result[i];
+									}
+									console.log(score);
+									$(\"#availableExamInfo\").append(
+										'<h5 class=\"card-title\">You already participated in the exam. Your score is </h5>'
+									);
+								}
+								else{
 									var fDate,lDate,cDate,Cdate;
 									fDate = availableExam.xstartdate; // startdate
 									cDate = new Date(); // date
@@ -209,7 +230,7 @@ class Stuexam extends Controller{
 									}
 									lDate = availableExam.xenddate;
 									examDate = cDate.getFullYear() + \"-\" + Cmonth + \"-\" + Cdate;
-									console.log(examDate);
+									// console.log(examDate);
 									if(examDate == lDate && examDate == fDate){
 										test(availableExam.xstarttime, availableExam.xendtime);
 									}
@@ -218,49 +239,51 @@ class Stuexam extends Controller{
 								
 								// test(\"20:02:55\", \"21:02:55\");
 
-								function test(start_time, end_time) {
-									// console.log(start_time);
-									// console.log(end_time);
-									var dt = new Date();
-									// console.log(dt);
-									//convert both time into timestamp
-									var stt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + start_time);
-									console.log(stt);
+									function test(start_time, end_time) {
+										// console.log(start_time);
+										// console.log(end_time);
+										var dt = new Date();
+										// console.log(dt);
+										//convert both time into timestamp
+										var stt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + start_time);
+										console.log(stt);
 
 
-									stt = stt.getTime();
-									console.log(stt);
+										stt = stt.getTime();
+										console.log(stt);
 
-									var endt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + end_time);
-									endt = endt.getTime();
+										var endt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + end_time);
+										endt = endt.getTime();
 
-									var time = dt.getTime();
+										var time = dt.getTime();
 
-									if (time > stt && time < endt) {
-										$(\"#availableExamInfo\").append(
-											'<h5 class=\"card-title\">Start Time : '+availableExam.xstarttime+'</h5>'
-										);
-										$(\"#availableExamInfo\").append(
-											'<h5 class=\"card-title\">End Time : '+availableExam.xendtime+'</h5>'
-										);
-										$(\"#attepmExam\").show();
-										$(\"#attepmExam\").css({\"width\":\"30%\",\"margin-left\":\"2rem\"});
+										if (time > stt && time < endt) {
+											$(\"#availableExamInfo\").append(
+												'<h5 class=\"card-title\">Start Time : '+availableExam.xstarttime+'</h5>'
+											);
+											$(\"#availableExamInfo\").append(
+												'<h5 class=\"card-title\">End Time : '+availableExam.xendtime+'</h5>'
+											);
+											$(\"#attepmExam\").show();
+											$(\"#attepmExam\").css({\"width\":\"30%\",\"margin-left\":\"2rem\"});
 
-									} else if(time < stt){
-										
-										$(\"#availableExamInfo\").append(
-											'<h5 class=\"card-title\">Start Time : '+availableExam.xstarttime+'</h5>'
-										);
-										$(\"#availableExamInfo\").append(
-											'<h5 class=\"card-title\">End Time : '+availableExam.xendtime+'</h5>'
-										);
-									}else{
-										$(\"#availableExamInfo\").append(
-											'<h5 class=\"card-title\">Exam Expired!</h5>'
-										);
+										} else if(time < stt){
+											
+											$(\"#availableExamInfo\").append(
+												'<h5 class=\"card-title\">Start Time : '+availableExam.xstarttime+'</h5>'
+											);
+											$(\"#availableExamInfo\").append(
+												'<h5 class=\"card-title\">End Time : '+availableExam.xendtime+'</h5>'
+											);
+										}else{
+											$(\"#availableExamInfo\").append(
+												'<h5 class=\"card-title\">Exam Expired!</h5>'
+											);
 
+										}
 									}
 								}
+									
 
 
 								
@@ -289,8 +312,8 @@ class Stuexam extends Controller{
 					console.log('test');
 					var courseValue = $(\"#courses\").find(\":selected\").val();
 					var lessonValue = $(\"#lessons\").find(\":selected\").val();
-					console.log(courseValue);
-					console.log(lessonValue);
+					// console.log(courseValue);
+					// console.log(lessonValue);
 					var url = '".URL."stuexam/setData';
 					
 					$.ajax({

@@ -16,6 +16,34 @@ class Stuexamquestion_Model extends Model{
 
         //return $this->db->any("SELECT xitemcode, (SELECT xdesc from seitem WHERE bizid=ecomsalesdet.bizid AND xitemcode=ecomsalesdet.xitemcode) AS xdesc from ecomsalesdet WHERE bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."'");
     }
+	public function getstubatch($course){
+        // $date = date('Y-m-d');
+		return $this->db->select("ecomsalesdet", array("xbatch"), "xitemcode='".$course."' and xcus = '".Session::get('suser')."' and bizid = ".BIZID."");
+
+        //return $this->db->any("SELECT xitemcode, (SELECT xdesc from seitem WHERE bizid=ecomsalesdet.bizid AND xitemcode=ecomsalesdet.xitemcode) AS xdesc from ecomsalesdet WHERE bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."'");
+    }
+	public function getstuexammstsl($course,$lesson){
+        // $date = date('Y-m-d');
+		return $this->db->select("eduexammst", array("xexammstsl"), "xitemcode='".$course."' and xlessonno = '".$lesson."' and bizid = ".BIZID."");
+
+        //return $this->db->any("SELECT xitemcode, (SELECT xdesc from seitem WHERE bizid=ecomsalesdet.bizid AND xitemcode=ecomsalesdet.xitemcode) AS xdesc from ecomsalesdet WHERE bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."'");
+    }
+	public function getstuexamdetsl($course,$lesson,$exammstsl){
+        // $date = date('Y-m-d');
+		return $this->db->select("eduexamdet", array("xexamdetsl"), "xitemcode='".$course."' and xlessonno = '".$lesson."' and xexammstsl = '".$exammstsl."' and bizid = ".BIZID."");
+
+        //return $this->db->any("SELECT xitemcode, (SELECT xdesc from seitem WHERE bizid=ecomsalesdet.bizid AND xitemcode=ecomsalesdet.xitemcode) AS xdesc from ecomsalesdet WHERE bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."'");
+    }
+	public function confirmSubmission($course,$lesson,$user,$batch,$exammstsl){
+        // $date = date('Y-m-d');
+		return $this->db->select("eduexamresult", array("*"), "xitemcode='".$course."' and xlessonno = '".$lesson."' and xstudent = '".$user."' and xbatch = '".$batch."' and xexammstsl = '".$exammstsl."' and bizid = ".BIZID."");
+
+        //return $this->db->any("SELECT xitemcode, (SELECT xdesc from seitem WHERE bizid=ecomsalesdet.bizid AND xitemcode=ecomsalesdet.xitemcode) AS xdesc from ecomsalesdet WHERE bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."'");
+    }
+	function createtemp($st){
+        //  Logdebug::appendlog(print_r($st, true));
+            return $this->db->executecrud($st);
+    }
 
 	public function getexams($course,$lesson){
 		return $this->db->select("eduexamassign", array("*"), "xitemcode='".$course."' and xlessonno = '".$lesson."' and bizid = ".BIZID." and xbatch = (SELECT xbatch from ecomsalesdet where xitemcode='".$course."' and xcus = '".Session::get('suser')."' and bizid = ".BIZID.")");

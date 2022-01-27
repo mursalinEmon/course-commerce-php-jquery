@@ -15,6 +15,12 @@ class Studentjoinclass_Model extends Model{
 		$where = " bizid = ".Session::get('sbizid')." and xitemcode = '".$itemcode."' and xbatch = '". $batchid ."'";
 		return $this->db->select("classdet", $fields, $where);
     }
+    public function getclasses($xclass){
+        $fields = array("*", "TIME_FORMAT(xstarttime, '%h:%i %p') as xstarttime", "DATE_FORMAT(xstartdate, '%d-%m-%Y') as xstartdate", "(select xdesc from seitem where bizid=classdet.bizid and xitemcode=classdet.xitemcode) as xitemdesc", "(select xbatchname from batch where bizid=classdet.bizid and xbatch=classdet.xbatch) as xbatchname", "(select xdesc from lesson where bizid=classdet.bizid and xlesson=classdet.xlesson) as xlessonname");
+		//print_r($this->db->select("pabuziness", $fields));die;
+        $where = " bizid = ".Session::get('sbizid')." and xclass = '".$xclass."'";
+		return $this->db->select("classdet", $fields, $where);
+    }
 	public function getsingleclass($class){
         $classdt = $this->db->select("classdet", array('*',"(select xbatchname from batch where bizid=classdet.bizid and xbatch=classdet.xbatch) as xbatchname", "(select xdesc from seitem where bizid=classdet.bizid and xitemcode=classdet.xitemcode) as xitemdesc", "(select xdesc from lesson where bizid=classdet.bizid and xlesson=classdet.xlesson) as xlessonname"), " xclass='$class'");
         return $classdt;
@@ -50,6 +56,11 @@ class Studentjoinclass_Model extends Model{
     public function getSelectBatch($course){
         $trainerdt = $this->db->select("ecomsalesdet", array("xbatch","(select xbatchname from batch where bizid=ecomsalesdet.bizid and xbatch=ecomsalesdet.xbatch) as xbatchname"), " bizid = ".Session::get('sbizid')." and xcus = '".Session::get('suser')."' and xitemcode='".$course."' and xbatch != 'Pending'");
         return $trainerdt;
+    }
+
+    function attendance($data, $onduplicate){
+        //$this->log->modellog( serialize($data));
+        return $this->db->insert('eduattendance',$data, $onduplicate);
     }
 		
 }

@@ -24,4 +24,8 @@ class Stuexam_Model extends Model{
 	public function getlessons($course){
 		return $this->db->select("lesson", array("xlesson,xdesc"), "xitemcode='".$course."' and bizid = ".BIZID."");
 	}
+
+	public function getresult($exams){
+		return $this->db->select("eduexamresult", array("*"), "xstudent='".Session::get('suser')."' and xitemcode='".$exams['xitemcode']."' and bizid = ".BIZID." and xlessonno='".$exams['xlessonno']."' and xbatch='".$exams['xbatch']."' and xexammstsl='".$exams['xexammstsl']."'");
+	}
 }

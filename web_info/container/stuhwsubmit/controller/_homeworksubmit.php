@@ -1,4 +1,5 @@
 <?php
+
 class Homeworksubmit extends Controller{
 	private $formfield=array();
 	function __construct(){
@@ -68,7 +69,7 @@ class Homeworksubmit extends Controller{
     }
 
 	function init(){ 
-        //echo "Test";die;
+
 		$url = URL.'hwsubmit/uploadimage';
 		$id = "userdropzone";
  
@@ -95,12 +96,9 @@ class Homeworksubmit extends Controller{
 		$success = 0;
 		if($_POST['sl'] != ""){
 			$success = $_POST['sl'];
-			Logdebug::appendlog(print_r($success, true));
 		}
 		$storeFolder = HW_ANSWER_LOCATION;
-		Logdebug::appendlog(print_r($storeFolder, true));
 		if(file_exists($storeFolder.$success.".pdf")){
-			Logdebug::appendlog('Hit');
 			$pdflocat = $storeFolder.$success.".pdf";
 		}
 		// Logdebug::appendlog($_POST['qid']);die;
@@ -200,11 +198,10 @@ class Homeworksubmit extends Controller{
     }
 
 	public function uploadimage(){
-		Logdebug::appendlog(HW_QUESTION_LOCATION);
+		// Logdebug::appendlog(HW_QUESTION_LOCATION);
 		$storeFolder = HW_ANSWER_LOCATION;   //2
-        $filename = $_POST['dzuserid'];
-		Logdebug::appendlog(print_r($filename, true));
 
+        $filename = $_POST['dzuserid'];
 		
         $result=array();
         foreach (glob($storeFolder.$filename.".pdf") as $file) {
@@ -333,9 +330,8 @@ class Homeworksubmit extends Controller{
 			dictDefaultMessage: 'Drop files here or click here to upload. <br /> Only Pdf Allowed',
 			success: function (file, response) {
 				
-				console.log(response)
 				const myObjStr = JSON.parse(response);
-				console.log(myObjStr)
+				//console.log(myObjStr)
 				if(myObjStr.length==0){
 					toastr.error('File upload failed!');                        
 					}else{
@@ -344,7 +340,7 @@ class Homeworksubmit extends Controller{
 				//$('#imglist').html('');
 				myObjStr.forEach(function(resp){   
 						
-					$('#imglist').html('<div class=\"col-1\"><div class=\"row\"><a href=\"'+resp+'\" target=\"_blank\"><img src=".URL."public/homework/pdf.png alt=\"View PDF\" width=\"90\" height=\"50\">View PDF</a><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+resp+'\')\">Remove</a></div></div>');	
+					$('#imglist').html('<div class=\"col-1\"><div class=\"row\"><a href=\"'+resp+'\" target=\"_blank\"><img src=".URL."public/images/uploads/homework/pdf.png alt=\"View PDF\" width=\"90\" height=\"50\">View PDF</a><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+resp+'\')\">Remove</a></div></div>');	
 				});
 				this.removeAllFiles(true); 
 			},                    
@@ -445,7 +441,7 @@ class Homeworksubmit extends Controller{
             //console.log(hwdt);
 			if(hwdt.length > 0){
 				$.get(hwdt, function(o){
-					console.log(o);
+					//console.log(o);
 					$('#sl').val(o[0].xsl);
 				}, 'json');
 			}
@@ -490,7 +486,7 @@ class Homeworksubmit extends Controller{
                                 $('#imglist').html('');
                                 var photo = myObjStr[0].trainerphoto; 
 								//console.log(photo);                               
-                                $('#imglist').append('<div class=\"col-1\"><div class=\"row\"><a href=\"'+photo+'\" target=\"_blank\"><img src=".URL."public/homework/pdf.png alt=\"View PDF\" width=\"90\" height=\"50\">View PDF</a></div><div class=\"row\"><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+photo+'\')\">Remove</a></div></div>');	
+                                $('#imglist').append('<div class=\"col-1\"><div class=\"row\"><a href=\"'+photo+'\" target=\"_blank\"><img src=".URL."public/images/uploads/homework/pdf.png alt=\"View PDF\" width=\"60\" height=\"50\">View PDF</a></div><div class=\"row\"><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+photo+'\')\">Remove</a></div></div>');	
                             }
 
 						//----------------------------
@@ -697,7 +693,7 @@ class Homeworksubmit extends Controller{
                            $(this).removeClass('disabled');
 						   $('#imglist').html('');
 						   if(result.pdfurl != ''){          
-								$('#imglist').append('<div class=\"col-1\"><div class=\"row\"><a href=\"'+result.pdfurl+'\" target=\"_blank\"><img src=".URL."public/homework/pdf.png alt=\"View PDF\" width=\"90\" height=\"50\">View PDF</a></div><div class=\"row\"><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+result.pdfurl+'\')\">Remove</a></div></div>');	
+								$('#imglist').append('<div class=\"col-1\"><div class=\"row\"><a href=\"'+result.pdfurl+'\" target=\"_blank\"><img src=".URL."public/images/uploads/homework/pdf.png alt=\"View PDF\" width=\"90\" height=\"50\">View PDF</a></div><div class=\"row\"><a style=\"color: red\" href=\"javascript:void(0)\" onclick=\"imgdrop(\''+result.pdfurl+'\')\">Remove</a></div></div>');	
 							}
                                
                             if(result.result=='fielderror'){

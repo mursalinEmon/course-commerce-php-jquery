@@ -227,7 +227,89 @@ class Studentjoinclass extends Controller{
         }
         
     }
+
+    function findclasses($classsl){
+        $res = "";
+        $batchid = "";
+        $xclass = $classsl;
+        //Logdebug::appendlog(serialize($itemcode));
+
+        Logdebug::appendlog(print_r($xclass, true));
+        // if(isset($_POST['batchid']))
+        //     $batchid = $_POST['batchid'];
+            
+        try{
+        //Logdebug::appendlog(serialize($itemcode));
+            
+            if($xclass == ""){
+                //Logdebug::appendlog('Please');
+                throw new Exception('Course and Batch not found!');
+                
+            }
+
+        }catch(Exception $e){
+                $res = $e->getMessage();              
+                //Logdebug::appendlog($res);
+                echo json_encode(array('message'=>$res,'result'=>'fielderror','keycode'=>''));
+            exit;
+        }
+
+        if($res == ""){
+            //Logdebug::appendlog('$res');
+            $onduplicate = "";
+            $classdet =  $this->model->getclasses($xclass);
+            $classdet = $classdet[0];
+            Logdebug::appendlog(print_r($classdet, true));
+            // $data=array(
+            //     "bizid" => Session::get('sbizid'),
+            //     "xstudent" => Session::get('suser'),
+            //     "xitemcode" => $classdet["xitemcode"],
+            //     "xbatch" => $classdet["xbatch"],
+            //     "xlessonno" => $classdet["xlesson"],
+            //     "xlessonname" => $classdet["xlessonname"],
+            //     "xclass" => $classdet["xclass"],
+            //     "xdate" => date('Y-m-d'),
+                
+            // );
+            // Logdebug::appendlog(print_r($data, true));
+            // $result = $this->model->attendance($data,$onduplicate);
+            echo json_encode($classdet);
+        }
+        
+    }
 	
+    function attendanceUpdate(){
+            Logdebug::appendlog('Test');
+            $availableClass = $_POST['availableClass'];
+            Logdebug::appendlog(print_r($availableClass, true));
+            $onduplicate = "";
+
+            $data=array(
+                "bizid" => Session::get('sbizid'),
+                "xstudent" => Session::get('suser'),
+                "xitemcode" => $availableClass["xitemcode"],
+                "xbatch" => $availableClass["xbatch"],
+                "xlessonno" => $availableClass["xlesson"],
+                "xlessonname" => $availableClass["xlessonname"],
+                "xclass" => $availableClass["xclass"],
+                "xdate" => date('Y-m-d'),
+                
+            );
+            Logdebug::appendlog(print_r($data, true));
+            $result = $this->model->attendance($data,$onduplicate);
+            if($result){
+                
+                echo json_encode(array('message'=>'Your attendance has been collected!','result'=>'success','keycode'=>$result));
+            }else{
+                echo json_encode(array('message'=>'Failed to collect attendance','result'=>'error','keycode'=>''));
+                exit;
+
+            }
+
+            
+
+    }
+
 	function singleclass(){
         $class = $_POST['param']; 
         $classdt =  $this->model->getsingleclass($class);
@@ -314,7 +396,7 @@ class Studentjoinclass extends Controller{
                                 tblhtml+='<tbody>';
                                 $.each(result, function(key, value){
                                 
-                                    tblhtml+='<tr><td>'+value.xlessonname+'</td><td>'+value.xstartdate+'</td><td>'+value.xstarttime+'</td><td>'+value.xduration+'</td><td>'+value.xmeetingpass+'</td><td><a class=\"btn btn-success\" style=\"border-radius:60px; font-size: 12px; padding: 5px 5px\" href=\"'+value.xjoinlink+'\" target=\"_blank\">Join Link</a></td></tr>';
+                                    tblhtml+='<tr><td>'+value.xlessonname+'</td><td>'+value.xstartdate+'</td><td>'+value.xstarttime+'</td><td>'+value.xduration+'</td><td>'+value.xmeetingpass+'</td><td><a class=\"btn btn-success\" style=\"border-radius:60px; font-size: 12px; padding: 5px 5px\" href=\"'+value.xjoinlink+'\" id=\"attendance\" onClick=\"attendance(\''+value.xclass+'\')\" target=\"_blank\">Join Link</a></td></tr>';
                                             
                                 });
                             }
@@ -337,6 +419,156 @@ class Studentjoinclass extends Controller{
 					return false;
 		});
 
+
+        //-----------
+        // Attendance
+        //-----------
+        function attendance(xclass){
+            // var xclass = xclass;
+            
+            var url = '".URL."stujoinclass/findclasses/'+xclass;
+            console.log(xclass);
+            $.ajax({
+                url:url, 
+                type : 'POST',
+                dataType : 'json', 						
+              
+                beforeSend:function(){
+                    $(this).addClass('disabled');
+                    // loaderon(); 
+                },
+                success : function(result) {
+
+                    
+                    var availableClass = result;
+                    // console.log(availableClass);
+
+									var fDate,lDate,cDate,Cdate;
+									fDate = availableClass.xstartdate; // startdate
+									cDate = new Date(); // date
+									Cdate = cDate.getDate();
+									Cmonth = (cDate.getMonth()+1);
+									if(Cdate<10){
+										Cdate = '0'+ Cdate;
+									}else{
+										Cdate =Cdate
+									}
+									if(Cmonth<10){
+										Cmonth = '0'+ Cmonth;
+									}else{
+										Cmonth = Cmonth
+									}
+									lDate = availableClass.xstartdate;
+									today = cDate.getFullYear() + \"-\" + Cmonth + \"-\" + Cdate;
+									// console.log(today);
+									// if(today == lDate && today == fDate){
+									// 	test(availableClass.xstarttime, availableClass.xstarttime);
+									// }
+									var theAdd = new Date(availableClass.xstarttime);
+                                    var xentime = moment(availableClass.xstarttime,'hh:mm').add(availableClass.xduration ,'minutes').format('hh:mm');
+                                    var xendtime = moment(xentime,'hh:mm').add(10 ,'minutes').format('hh:mm');
+                                    var xstarttime = moment(availableClass.xstarttime,'hh:mm').subtract(10 ,'minutes').format('hh:mm');
+                                    // console.log(moment(availableClass.xstarttime,'hh:mm').add(availableClass.xduration + 10 ,'minutes').format('hh:mm'));
+                                    console.log(xendtime);
+                                    console.log(xstarttime);
+										test(xstarttime, xendtime,availableClass);
+									
+							
+								
+								
+								// test(\"20:02:55\", \"21:02:55\");
+                                // console.log(availableClass);
+
+								
+                    
+                          
+                },
+                error: function(xhr, resp, text) {
+                    loaderoff();
+                    $(this).removeClass('disabled');
+                   
+                    console.log(xhr, resp, text);
+                }
+            });
+        }
+            
+
+
+            function test(start_time, end_time,availableClass) {
+                console.log(start_time);
+                console.log(end_time);
+                var dt = new Date();
+                console.log('dt '+dt);
+                var todaystr = today.replace(/\-/g,'');
+                var startdate = availableClass.xstartdate.replace(/\-/g,'');
+                // console.log('today '+todaystr);
+                // console.log('exam date '+startdate);
+                // if(todaystr > startdate){
+                // 	console.log('Date past');
+                // }else{
+                // 	console.log('Date has not past');
+                // }
+                //convert both time into timestamp
+                var stt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + start_time);
+                console.log('st '+stt);
+
+
+                stt = stt.getTime();
+                // console.log(stt);
+
+                var endt = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + end_time);
+                console.log('et '+endt);
+                
+
+                endt = endt.getTime();
+                var time = moment(dt,'hh:mm').add(0 ,'minutes').format('hh:mm');
+                console.log('cu '+time);
+                var time = new Date((dt.getMonth() + 1) + \"/\" + dt.getDate() + \"/\" + dt.getFullYear() + \" \" + time);
+                console.log('cur '+time);
+
+                var time = dt.getTime();
+
+
+                console.log(time>stt);
+                console.log(time<endt);
+                console.log('ctime '+time);
+                console.log('stime '+stt);
+                console.log('etime '+endt);
+                    
+                        if(time > stt && time < endt){
+                            console.log('test');
+                            var url = '".URL."stujoinclass/attendanceUpdate';
+                            console.log('class '+availableClass);
+                                
+                                    $.ajax({
+                                        url:url, 
+                                        type : 'POST',
+                                        dataType : 'json', 						
+                                        data :{availableClass:availableClass}, 
+                                        beforeSend:function(){
+                                            $(this).addClass('disabled');
+                                            // loaderon(); 
+                                        },
+                                        success : function(result) {
+                                            console.log(result);
+                                            
+								            toastr.success(result.message);                               
+
+                                                
+                                        },
+                                        error: function(xhr, resp, text) {
+                                            loaderoff();
+                                            $(this).removeClass('disabled');
+                                        
+                                            console.log(xhr, resp, text);
+                                        }
+                                    });
+                                    return false;
+                            
+                        }
+
+                 
+                    }
 		    //-----------------------
             // show user
            //-----------------------
